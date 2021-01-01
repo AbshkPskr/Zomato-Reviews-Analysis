@@ -14,25 +14,16 @@ r.html.render(sleep=1, keep_page = True, scrolldown = 1)
 soup = BeautifulSoup(r.text,'html.parser')
 main_div = soup.find('div',{'class':"bke1zw-0 cMipmx"})
 
+restaurants_url = []
 count = 1
 for divs in main_div.children:
-    for sec in divs.children:
-        print(sec.contents[1].contents[0].text)
-        print(sec.contents[1].find('a').text)
-        # for tags in sec.children:
-        #     for link in tags.children:
-        #         print(link)
-        count+=1
-        # print(str(count)+"_____________________________________________")
-    #     if count == 2:
-    #         break
-    # if count == 2 :
-    #     break
-
-# rest_link = main_div.find_all('a')
-
-# print(rest_link[0])
-# for rest in range (0,len(rest_link)-1,1):
-#     print(rest_link[rest]['href'])
+    sec = divs.contents[0]
+    # print(sec.contents[1].contents[0].text)
+    # print(sec.contents[1].contents[0]['href'])
+    # try:
+    #     print(sec.contents[1].contents[1].contents[2].text)
+    # except:
+    #     print("==================================================================")
+    restaurants_url.append(sec.contents[1].contents[0]['href'])
 
 r.close()
