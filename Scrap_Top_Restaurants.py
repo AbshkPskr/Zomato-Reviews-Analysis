@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 from Get_Page_Html import GetPageHtml
 from Scrap_Reviews import ScrapReviews
+import os
 
 url = "https://www.zomato.com/ncr/top-restaurants"
 top_restaurants_html = GetPageHtml(url)
@@ -12,10 +13,26 @@ for divs in main_div.children:
     url = divs.contents[0].contents[1].contents[0]['href'].split("?")[0]
     restaurants_urls.append(url)
 
-rest_reviews = {}
-for rest in restaurants_urls[1:2:2]:
-    rest_reviews.update(ScrapReviews(rest))
 
-print(rest_reviews)
+def getdata(rest):
+    dic = ScrapReviews(rest)
+    columns = ['name','rating','reviews']
+    df = pd.DataFrame(columns = columns)
+    for value in dic['reviews']:
+        df = df.append({'name': dic['name'],'rating':dic['rating'],'reviews':value},ignore_index = True)
+    df.to_csv('reviews.csv', mode = 'a', header = False, index=False)
+
+from threading import Thread
+for rest in restaurants_urls:
+    print(rest)
+    th = Thread(target = getdata,args=[rest])
+    th.start()
 
 
+
+
+
+
+
+
+ 
