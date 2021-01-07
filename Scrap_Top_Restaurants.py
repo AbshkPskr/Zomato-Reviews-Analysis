@@ -6,6 +6,7 @@ import os
 
 url = "https://www.zomato.com/ncr/top-restaurants"
 top_restaurants_html = GetPageHtml(url)
+print(top_restaurants_html)
 main_div = top_restaurants_html.find('div',{'class':"bke1zw-0 cMipmx"})
 
 restaurants_urls = []
