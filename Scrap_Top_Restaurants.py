@@ -6,7 +6,7 @@ import os
 
 url = "https://www.zomato.com/ncr/top-restaurants"
 top_restaurants_html = GetPageHtml(url)
-print(top_restaurants_html)
+
 main_div = top_restaurants_html.find('div',{'class':"bke1zw-0 cMipmx"})
 
 restaurants_urls = []
@@ -25,14 +25,14 @@ def getdata(rest):
 
 from threading import Thread
 for rest in restaurants_urls:
-    print(rest)
+    # print(rest)
     th = Thread(target = getdata,args=[rest])
     th.start()
     # getdata(rest)
 
-import time
-for i in range(0,10):
-    df = pd.read_csv('reviews.csv').drop_duplicates()
-    print(df)
-    df.to_csv('rr.csv')
-    time.sleep(2)
+# import time
+# for i in range(0,10):
+#     df = pd.read_csv('reviews.csv').drop_duplicates()
+#     print(df)
+#     df.to_csv('rr.csv')
+#     time.sleep(2)

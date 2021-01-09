@@ -19,8 +19,8 @@ def GetReviews(Url,Name,Rating):
 
     review_text = review_section.contents[2]
     columns = ['name','rating','reviews','sentiment']
-    df = pd.DataFrame(columns = columns)
     for tag in range(0,len(review_text)):
+        df = pd.DataFrame(columns = columns)
         child_tag = review_text.contents[tag]
         if child_tag.name == 'p':
             if child_tag.text != "":
@@ -29,7 +29,6 @@ def GetReviews(Url,Name,Rating):
                                 'sentiment':GetSentiment(child_tag.text)},ignore_index = True)
                 # df = pd.concat([df1,df]).drop_duplicates().reset_index(drop=True)
                 df.to_csv('reviews.csv', mode = 'a', header = False, index=False)
-
 
 def ScrapReviews(Url):
     restaurant_html = GetPageHtml(Url+"/reviews")
@@ -43,10 +42,24 @@ def ScrapReviews(Url):
     print(rating)
     threads = []
     for page_no in range(1,int(no_of_reviews)//5+2):
+        print(restaurant_name,"-----",page_no)
         review_page_url = Url + "/reviews?page="+ str(page_no) +"&sort=dd&filter=reviews-dd"
-        th = Thread(target = GetReviews,args=[review_page_url,restaurant_name,rating])
-        threads.append(th)
-        th.start()
+        GetReviews(review_page_url,restaurant_name,rating)
+        # th = Thread(target = GetReviews,args=[review_page_url,restaurant_name,rating])
+        # threads.append(th)
+        # print("len of threads-- ",len(threads),th.name )
+        # if len(threads) > 10:
+        #     for thrd in threads:
+        #         if thrd.is_alive():
+        #             print(thrd.is_alive())
+        #             thrd.join()
+        #             threads.remove(thrd)
+        #             print('aaaaaaaaaaaaaaaaaaaaaaa')
+        #         else:
+        #             print(thrd.is_alive())
+        #             print('iiiiiiiiiiiiiiiiiiiiiiii')
+                
+        # th.start()
 
     for i in threads:
         i.join()
@@ -59,3 +72,4 @@ def ScrapReviews(Url):
 # print(ScrapReviews("https://www.zomato.com/ncr/key-hotel-samrat-chanakyapuri-new-delhi"))
 
 # print(pd.read_csv('reviews.csv').drop_duplicates())
+# print(pd.read_csv('reviews.csv').drop_duplicates().shape)
