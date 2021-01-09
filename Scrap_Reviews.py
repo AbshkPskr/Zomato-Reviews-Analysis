@@ -48,7 +48,6 @@ def ScrapReviews(Url):
         threads.append(th)
         th.start()
 
-
     for i in threads:
         i.join()
 
