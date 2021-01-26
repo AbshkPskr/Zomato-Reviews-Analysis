@@ -8,6 +8,9 @@ from dateutil.relativedelta import relativedelta
 from datetime import datetime
 import re
 
+import time
+start_time = time.time()
+
 def ConvertDate(ago):
     try: 
         value, unit = re.search(r'(\d+) (\w+) ago', ago).groups()
@@ -61,26 +64,20 @@ def ScrapReviews(Url):
     except:
         rating = 0
 
-    # threads = []
+    threads = []
     for page_no in range(1,int(no_of_reviews)//5+2):
         print(restaurant_name,"-----",page_no)
         review_page_url = Url + "/reviews?page="+ str(page_no) +"&sort=dd&filter=reviews-dd"
         GetReviews(review_page_url,restaurant_name,rating)
-        # th = Thread(target = GetReviews,args=[review_page_url,restaurant_name,rating])
-        # threads.append(th)
-        # print("len of threads-- ",len(threads),th.name )
-        # if len(threads) > 10:
-        #     for thrd in threads:
-        #         if thrd.is_alive():
-        #             print(thrd.is_alive())
-        #             thrd.join()
-        #             threads.remove(thrd)
-        #             print('aaaaaaaaaaaaaaaaaaaaaaa')
-        #         else:
-        #             print(thrd.is_alive())
-        #             print('iiiiiiiiiiiiiiiiiiiiiiii')
+        th = Thread(target = GetReviews,args=[review_page_url,restaurant_name,rating])
+        th.start()
+        threads.append(th)
+        print("len of threads-- ",len(threads),th.name )
+        if len(threads) > 100:
+            for thrd in threads:
+                thrd.join()
+            threads = []
                 
-        # th.start()
         # return
 
     # for i in threads:
@@ -89,3 +86,5 @@ def ScrapReviews(Url):
    
 # print(ScrapReviews("https://www.zomato.com/ncr/local-connaught-place-new-delhi"))
 # print(ScrapReviews("https://www.zomato.com/ncr/key-hotel-samrat-chanakyapuri-new-delhi"))
+
+print("--- %s seconds ---" % (time.time() - start_time))
