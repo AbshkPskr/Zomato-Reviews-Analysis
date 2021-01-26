@@ -1,36 +1,23 @@
-# import os, signal 
-   
-# def process(): 
-      
-#     # Ask user for the name of process 
-#     name = input("Enter process Name: ") 
+# from dateutil.relativedelta import relativedelta
+# from datetime import datetime
+# import re
+# import pandas as pd
+
+# def ConvertDate(ago):
 #     try: 
-#         # iterating through each instance of the proess 
-#         while True:
-#             for line in os.popen("ps ax | grep " + name + " | grep -v grep"):  
-#                 fields = line.split() 
-                
-#                 # extracting Process ID from the output 
-#                 pid = fields[0]  
-                
-#                 # terminating process  
-#                 os.kill(int(pid), signal.SIGKILL)  
-#             print("Process Successfully terminated") 
-            
-          
+#         value, unit = re.search(r'(\d+) (\w+) ago', ago).groups()
+#         if not unit.endswith('s'):
+#             unit += 's'
+#         delta = relativedelta(**{unit: int(value)})
+#         return (datetime.now() - delta)
 #     except: 
-#         print("Error Encountered while running script") 
-   
-# process()
+#         pass
+#     try:
+#         return pd.to_datetime(ago)
+#     except:
+#         return ''
 
-import psutil
+# print(ConvertDate("Jan 04, 2020"))
+import pandas as pd
 
-# while True:
-for proc in psutil.process_iter():
-    if str(proc.name()) == 'chrome.exe':
-        proc.kill()
-        print("----------------------------------")
-        # dic = proc.as_dict()
-        # for key in dic:
-        #     print(str(key)+"----------------"+str(dic[key]))
-        # break
+pd.read_csv('reviews.csv').drop_duplicates().to_csv('reviews.csv',index= False,sep="~")
