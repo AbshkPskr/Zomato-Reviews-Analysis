@@ -1,195 +1,237 @@
-import dash
-from dash.dependencies import Input, Output, State
+import plotly.express as px
+# from jupyter_dash import JupyterDash
 import dash_core_components as dcc
 import dash_html_components as html
-import dash_table as dt
-import plotly
-import random
-import plotly.graph_objs as go
-from collections import deque
-import pandas as pd
-import sqlite3
-import time
+from dash.dependencies import Input, Output
+import dash
+import dash_table.DataTable as DT
+# from  dash_dangerously_set_inner_html import DangerouslySetInnerHTML as DSIH
+import json
 
-import threading 
+import Get_Data
+
+bar = df.groupby('name').count().sort_values(by = 'rating')
+rest_dict = {}
+for drop in bar.index.unique():
+    rest =  df[df.name == drop].sort_values('date')
+    rest['date'] = rest['date'].astype('string')
+    rest = rest[pd.notna(rest['review'])]
+    rest['smooth_sentiment'] = rest['sentiment'].rolling(int(len(rest)/5)).mean()
+    rest = rest[pd.notna(rest['smooth_sentiment'])]
+    rest = rest.set_index(i for i in range(len(rest)))
+    rest_dict[drop] = rest
+
+# external_css = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 
-# external_css = ["https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css"]
+app = JupyterDash(__name__)#,external_stylesheets=external_css)
 
-
-# external_js = ['https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js',
-#                'https://pythonprogramming.net/static/socialsentiment/googleanalytics.js']
-
-
-app = dash.Dash(__name__)#,external_scripts=external_js,external_stylesheets=external_css)
-server = app.server
-  
-# import twitter
-# class thread(threading.Thread): 
-#     def __init__(self, thread_name, thread_ID): 
-#         threading.Thread.__init__(self) 
-#         self.thread_name = thread_name 
-#         self.thread_ID = thread_ID 
-#     def run(self): 
-#         # print(str(self.thread_name) +"  "+ str(self.thread_ID)); 
-#         twitter.get_tweets()
-  
-# thread1 = thread("", 1001)   
-# thread1.start() 
-df = pd.read_csv("reviews.csv",names = ['name','rating','review','sentiment']).drop_duplicates()
-df = df[df.name != 'atter was really fulfilling and deliciousTandoori Aalu til naaz was really goodDahi kabab was quite soft and easily melted in mouthShahi Kumbh includes Mushrooms (I am not a fan of mushrooms :P )Paneer Tikka was a bit hard']
-X = df.index
-Y = df.sentiment.values
-
-data = go.Scatter(
-    x=list(X),
-    y=list(Y),
-    name = 'Scatter',
-    mode = 'lines+markers'
-)
     
-layout = go.Layout(xaxis = dict(range=[min(X),max(X)]),
-                   yaxis = dict(range=[min(Y),max(Y)]),
-                   margin=dict(l=40,r=20,b=20,t=60,pad=0),
-                   template = 'plotly_dark',
-                   hovermode='x')
-
-fig = {'data':[data],'layout':layout}
+app_colors = {
+    'background': '#1e2130',
+    'layout': '#161a28',
+    'text':'#000000',
+    'text-shadow':'#0A76BA',
+    'someothercolor':'#FF206E',
+}
+#'border':'1px solid grey',
+dropdown_label_style = {'width':'20%','height':'40px','line-height': '35px','float':'left',
+                        'color':'white','font-size':'20px','text-shadow': '2px 2px 5px #0A76BA'}
+graph_style = {'width': '70%','float': 'left'}
+figure_text_style={'text-shadow': '2px 2px 5px #0A76BA'}
+head_style = {'font-size':'20px','text-align':'center','text-shadow': '2px 2px 5px #0A76BA','margin':'5%'}
+text_style = {'font-size':'50px','text-align':'center','text-shadow': '2px 2px 5px #0A76BA'}
+rating_div_style = {'width': '50%','float': 'left','color':'white','height':'120px',
+                    'background-color':app_colors['layout']}
+Sentiment_div_style = {'width': '49%','float': 'right','color':'white','height':'120px',
+                       'background-color':app_colors['layout']}
+review_div_style = {'height':'282.5px','overflow-y':'scroll','background-color':app_colors['layout']}
+review_text_style = {'width': '86%','font-size':'15px','text-align':'centre','color':'white','margin':'5% 5%'}
+graph_hover_data_style = {'width': '29%','float': 'right'}
+gap_div = html.Div(style={'height':'15px','clear':'both'})
 
 app.layout = html.Div([
-    # [html.Div(className='container-fluid', 
-    #           children = [html.H2('Live Twitter Sentiment',
-    #                               style={'color':"#CECECE"}),
-    #                       html.H5('Search:',
-    #                               style={'color':"#ffffff"}),
-    #                       dcc.Input(id='term',
-    #                                 value='twitter',
-    #                                 type='text',
-    #                                 style={'color':"#ffffff"}),],
-    #           style={'width':'98%','margin-left':10,'margin-right':10,'max-width':50000}),
-     html.Div(className = 'row',
-              children = [html.Div(dcc.Graph(id = 'live-graph',animate = False,figure=fig),
-                                    className='col s12 m6 l6')]),
-                        #   html.Div(dcc.Graph(id = 'live-pie', animate = False),className='col s12 m6 l6')]),
-    #  html.Div(id = 'table'),
-     dcc.Interval(id = 'graph',interval=1000,n_intervals = 0)
-    ] ,style={'backgroundColor': "#000000", 'margin-top':'-30px', 'height':'2000px',},
+                       html.Div([
+                                 html.H1("Zomato Review Analysis",style={'text-align': 'center','color':'White','font-size':'50px'}),
+                                 html.Div([html.Div('Select Restaurant', style=dropdown_label_style),
+                                           html.Div(dcc.Dropdown(id='restaurant-dropdown',
+                                                                 options=[{'label': i, 'value': i} for i in bar.index.unique()],
+                                                                 value='Local'),
+                                                    style={'width':'75%','height':'40px','float':'right','color':'black'})]
+                                          ),
+                                 gap_div,
+                                 html.Div(children=[
+                                                    html.Div(children = [
+                                                                         dcc.Graph(id='graph',style = figure_text_style),
+                                                                         gap_div, 
+                                                                         html.Div([
+                                                                                   dcc.Graph(id='radar',style={'width' : '49%','float': 'left'}),
+                                                                                   dcc.Graph(id='pie',style={'width' : '49%','float': 'right'}),
+                                                                                   ],
+                                                                                  ),
+                                                                         ],
+                                                             style=graph_style
+                                                             ),
+                                                    html.Div(children=[
+                                                                       html.Div(children=[
+                                                                                          html.Div([
+                                                                                                    html.Div(children='Rating',style = head_style),
+                                                                                                    html.Div(id='cust_rating',style=text_style)
+                                                                                                    ],
+                                                                                                   style=rating_div_style
+                                                                                                   ),
+                                                                                          html.Div([
+                                                                                                    html.Div(children='Sentiment',style = head_style),
+                                                                                                    html.Div(id='sentiment',style=text_style)
+                                                                                                    ],
+                                                                                                   style=Sentiment_div_style
+                                                                                                   ),
+                                                                                          ],
+                                                                                # style = {'height' : '100px'}
+                                                                                ),
+                                                                       gap_div,
+                                                                       html.Div([
+                                                                                 html.Div(id = 'review',style=review_text_style),
+                                                                                 ],
+                                                                                style = review_div_style
+                                                                                ),
+                                                                       gap_div,
+                                                                       html.Div("asdfasdfasdf",style = review_div_style),
+                                                                       ],
+                                                             style = graph_hover_data_style
+                                                             ),
+                                                    ],
+                                          ),
+                                 gap_div,
+                                 html.Div(id='table'),
+                                 ],
+                                style={'margin':'4% 3%'}
+                                ),
+                       ],
+                      style = {'background-color':app_colors['background']}
+                      )
+
+
+@app.callback(
+    Output('table', 'children'),
+    Input("get", "height")
+)
+def debug(value):
+    return value
+
+# Define callback to update graph
+@app.callback(
+    Output('graph', 'figure'),
+    Output('radar', 'figure'),
+    Output('pie', 'figure'),
+    Input("restaurant-dropdown", "value")
 )
 
-# old_term = 'twitter'
-# @app.callback([Output(component_id='live-graph',component_property='figure')],
-#             #    Output(component_id='live-pie',component_property='figure'),
-#             #    Output(component_id='table',component_property='children')],
-#               [Input('term','value')])
-#             #    Input('graph','n_intervals')])
-# def update_graph(term):
-    # global old_term
-    # if term == '' : 
-    #     term = old_term
-    # old_term = term
-    # conn = sqlite3.connect('twitter.db')
-    # # manage_data(conn)
-    # df = pd.read_sql("select * from sentiment where tweet like '%"+term+"%' order by unix desc limit 1000",conn)
-        
-    # df['unix'] = pd.to_datetime(df['unix'],unit='ms')
-    # df.sort_values('unix',inplace=True)
-    # df.set_index('unix',inplace=True)
-    # df = df.iloc[-100:,:]
-    # tableData = df.iloc[-10:,:]
-    
-    # positive = 0
-    # negative = 0
-    # neutral = 0
-    # for senti in df['sentiment']:
-    #     if senti > 0:
-    #         positive += 1
-    #     if senti < 0:
-    #         negative += 1
-    #     else:
-    #         neutral += 1
-    
-    # df['smoothe_sentiment'] = df['sentiment'].rolling(int(len(df)/5)).mean()
-    
-    # df = df.resample('2s').mean()
-    # df.dropna(inplace=True)
-            
-    # df = pd.read_csv("reviews.csv",names = ['name','rating','review','sentiment']).drop_duplicates()
-    # df = df[df.name != 'atter was really fulfilling and deliciousTandoori Aalu til naaz was really goodDahi kabab was quite soft and easily melted in mouthShahi Kumbh includes Mushrooms (I am not a fan of mushrooms :P )Paneer Tikka was a bit hard']
-    # X = df.index
-    # Y = df.sentiment.values
+def update_figure(drop):
+    fig_font_size = 10
 
-    # data = go.Scatter(
-    #     x=list(X),
-    #     y=list(Y),
-    #     name = 'Scatter',
-    #     mode = 'lines+markers'
-    # )
+    rest_data = rest_dict[drop]
 
-    # print(data)
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=rest_data.index,
+                             y=rest_data.smooth_sentiment,
+                             mode='lines+markers',
+                             name='confirmed',line=dict(color='#C2BF20', width=2)))
+    fig.update_layout(margin=dict(l=60,r=10,b=20,t=50,pad=0),
+                      paper_bgcolor=app_colors['layout'],
+                      height= 350,
+                      legend=dict(x=.01,y=.98),
+                      title_text = 'Reviews',
+                      font_size=fig_font_size,
+                      xaxis_title="Number of reviews",
+                      yaxis_title="Sentiment with rolling mean",
+                    #   gridcolor = 'Red',
+                    #   clickmode='event+select',
+                      xaxis = {'gridcolor':'grey'},
+                      yaxis = {'gridcolor':'grey'},
+                      plot_bgcolor=app_colors['layout'],
+                      font = {'color':'white'},
+                    #   hovermode='x'
+                      )
     
-    # layout = go.Layout(xaxis = dict(range=[min(X),max(X)]),
-    #                    yaxis = dict(range=[min(Y),max(Y)]),
-    #                    margin=dict(l=40,r=20,b=20,t=60,pad=0),
-    #                    template = 'plotly_dark',
-    #                    hovermode='x')
-    
-    
-    # # pie = go.Pie(values=[positive,negative,neutral],
-    # #              labels= ['Positive','Negative','Neutral'],
-    # #              text=['Positive','Negative','Neutral'],
-    # #              marker={'colors' :['green','red','blue']},
-    # #              hole = 0.4)
-    
-    # # print(tableData.columns)
-    # return [{'data':[data],'layout':layout}]
-    #         {'data':[pie],'layout':layout},
-    #         html.Table(className="responsive-table",
-    #                    children=[
-    #                       html.Thead(
-    #                           html.Tr(
-    #                               children=[
-    #                                   html.Th(col.title()) for col in tableData.columns.values],
-    #                               style={'color':app_colors['text']}
-    #                               )
-    #                           ),
-    #                       html.Tbody(
-    #                           [
-    #                           html.Tr(
-    #                               children=[
-    #                                   html.Td(data) for data in d
-    #                                   ], style={'color':app_colors['text'],
-    #                                             'background-color':quick_color(d[1])}
-    #                               )
-    #                            for d in tableData.values.tolist()])
-    #                       ]
-    # )]
-    
-    
-# def quick_color(s):
-#     # except return bg as app_colors['background']
-#     if s >= 0.1:
-#         # positive
-#         return "#002C0D"
-#     elif s <= -0.1:
-#         # negative:
-#         return "#270000"
+    radar = go.Figure()
+    radar.add_trace(go.Scatterpolar(r=[1,2,3,4,5,6],
+                                    theta=[heart,'b','c','d','e','f'],
+                                    mode='lines+markers',fill='toself',line=dict(width=2,color='#4E7094')))
+    radar.update_layout(margin=dict(l=50,r=50,b=20,t=50,pad=0),
+                    paper_bgcolor=app_colors['layout'],
+                    height= 350,
+                    # legend=dict(x=.01,y=.98),
+                    title_text = 'Emotions',
+                    font_size=fig_font_size,
+                    xaxis_title="none",
+                    yaxis_title="Emotional value",
+                    plot_bgcolor=app_colors['layout'],
+                    font = {'color':'white'},
+                    polar = dict(angularaxis = dict(tickfont = dict(size = 25)),
+                                 radialaxis=dict(visible = True,range = [0,10])),
+                    )
 
-#     else:
-#         return app_colors['background']
+   
+    positive,negative,neutral = 0,0,0
+    for senti in rest_data['sentiment']:
+        if senti > 0:
+            positive += 1
+        if senti < 0:
+            negative += 1
+        else:
+            neutral += 1
+    pie = go.Figure()
+    pie.add_trace(go.Pie(values=[positive,negative,neutral],
+                 labels= ['Positive','Negative','Neutral'],
+                 text=['Positive','Negative','Neutral'],
+                 marker={'colors' :['#2EB848','#B82E2E','#2D35B4']},
+                 hole = 0.4))
+    pie.update_layout(margin=dict(l=20,r=20,b=20,t=50,pad=0),
+                      paper_bgcolor=app_colors['layout'],
+                      height= 350,
+                    #   legend=dict(x=.01,y=.98),
+                      title_text = 'Reviews',
+                      font_size=fig_font_size,
+                      xaxis_title="name",
+                      yaxis_title="Number of reviews",
+                      clickmode='event+select',
+                      plot_bgcolor=app_colors['layout'],
+                      font = {'color':'white'},
+                      hovermode='x')
     
-# app_colors = {
-#     'background': '#0C0F0A',
-#     'text': '#FFFFFF',
-#     'sentiment-plot':'#41EAD4',
-#     'volume-bar':'#FBFC74',
-#     'someothercolor':'#FF206E',
-# }
 
-# def manage_data(conn):
-#     df = pd.read_sql("select * from sentiment",conn)
-#     # if len(df) > 100000:
-#     print(len(df))
+    return [fig,radar,pie]
+
+@app.callback(
+        Output('cust_rating', 'children'),
+        Output('sentiment', 'children'),
+        Output('review', 'children'),
+        Input("restaurant-dropdown", "value"),
+        Input("graph", "hoverData"),
+)
+def GetHoverData(drop,hoverData):
+    rest_data = rest_dict[drop]
+    X = 12
+    if hoverData != None : X = int(hoverData['points'][0]['x'])
+    rest_data = rest_data[rest_data.index == X]
+    # table_data = rest_data.transpose().reset_index()
+    # table = html.Table(children=[
+    #                              html.Thead(html.Tr(children=[html.Th(col) for col in table_data.columns.values],
+    #                                                 style={'color':app_colors['text']}
+    #                                                 )
+    #                                         ),
+    #                              html.Tbody([html.Tr(children=[html.Td(table_data) for table_data in d],
+    #                                                  style={'color':app_colors['text']}
+    #                                                  )
+    #                                          for d in table_data.values.tolist()])
+    #                             ])
+
+    review = rest_data['review']
+    cust_rating = rest_data['cust_rating']
+    sentiment = rest_data['sentiment']
+    return [cust_rating,sentiment,review]
 
 
-if __name__ == "__main__":
-    app.run_server(debug=True)
+if __name__ == '__main__':
+    app.run_server(debug=True,port = 8020)#mode = "inline")
