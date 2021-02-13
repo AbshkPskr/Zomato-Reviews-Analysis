@@ -1,106 +1,100 @@
-import plotly.express as px
-# from jupyter_dash import JupyterDash
-import dash_core_components as dcc
-import dash_html_components as html
-from dash.dependencies import Input, Output
+import numpy as np
 import dash
-import dash_table.DataTable as DT
-# from  dash_dangerously_set_inner_html import DangerouslySetInnerHTML as DSIH
-import json
-
+import dash_html_components as html
+import dash_core_components as dcc
+from dash.dependencies import Input, Output
+import plotly.graph_objs as go
+from wordcloud import WordCloud, STOPWORDS
 import Get_Data
 
-bar = df.groupby('name').count().sort_values(by = 'rating')
-rest_dict = {}
-for drop in bar.index.unique():
-    rest =  df[df.name == drop].sort_values('date')
-    rest['date'] = rest['date'].astype('string')
-    rest = rest[pd.notna(rest['review'])]
-    rest['smooth_sentiment'] = rest['sentiment'].rolling(int(len(rest)/5)).mean()
-    rest = rest[pd.notna(rest['smooth_sentiment'])]
-    rest = rest.set_index(i for i in range(len(rest)))
-    rest_dict[drop] = rest
+# from jupyter_dash import JupyterDash
+
+rest_dict = Get_Data.GetData()
+rest_names = list(rest_dict.keys())
 
 # external_css = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
-
-app = JupyterDash(__name__)#,external_stylesheets=external_css)
-
+app = dash.Dash(__name__)#,external_stylesheets=external_css)
     
-app_colors = {
+app_styling = {
     'background': '#1e2130',
     'layout': '#161a28',
     'text':'#000000',
-    'text-shadow':'#0A76BA',
-    'someothercolor':'#FF206E',
+    'text-shadow':'2px 2px 5px #0A76BA',
+    'box-shadow':'4px 4px 5px #0E1017',
 }
+
 #'border':'1px solid grey',
-dropdown_label_style = {'width':'20%','height':'40px','line-height': '35px','float':'left',
-                        'color':'white','font-size':'20px','text-shadow': '2px 2px 5px #0A76BA'}
+heading_style = {'text-align': 'center','color':'White','font-size':'50px','text-shadow': app_styling['text-shadow']}
+dropdown_label_style = {'width':'10%','height':'40px','line-height': '35px','float':'left','color':'white',
+                        'font-size':'20px','text-shadow': app_styling['text-shadow'],'text-align':'center'}
+dropdown_div_style = {'width':'85%','height':'40px','float':'right','color':'black'}
 graph_style = {'width': '70%','float': 'left'}
-figure_text_style={'text-shadow': '2px 2px 5px #0A76BA'}
-head_style = {'font-size':'20px','text-align':'center','text-shadow': '2px 2px 5px #0A76BA','margin':'5%'}
-text_style = {'font-size':'50px','text-align':'center','text-shadow': '2px 2px 5px #0A76BA'}
-rating_div_style = {'width': '50%','float': 'left','color':'white','height':'120px',
-                    'background-color':app_colors['layout']}
-Sentiment_div_style = {'width': '49%','float': 'right','color':'white','height':'120px',
-                       'background-color':app_colors['layout']}
-review_div_style = {'height':'282.5px','overflow-y':'scroll','background-color':app_colors['layout']}
-review_text_style = {'width': '86%','font-size':'15px','text-align':'centre','color':'white','margin':'5% 5%'}
+figure_text_style={'text-shadow': app_styling['text-shadow'],'box-shadow': app_styling['box-shadow']}
+radar_style = {'width' : '49%','float': 'left','text-shadow': app_styling['text-shadow'],'box-shadow': app_styling['box-shadow']}
+Pie_style = {'width' : '49%','float': 'right','text-shadow': app_styling['text-shadow'],'box-shadow': app_styling['box-shadow']}
+head_style = {'font-size':'20px','text-align':'center','text-shadow': app_styling['text-shadow'],'margin':'5%'}
+text_style = {'font-size':'50px','text-align':'center','text-shadow': app_styling['text-shadow']}
+rating_div_style = {'width': '50%','float': 'left','color':'white','height':'120px','background-color':app_styling['layout'],'box-shadow': app_styling['box-shadow']}
+Sentiment_div_style = {'width': '49%','float': 'right','color':'white','height':'120px','background-color':app_styling['layout'],'box-shadow': app_styling['box-shadow']}
+review_div_style = {'height':'282.5px','overflow-y':'scroll','background-color':app_styling['layout'],'box-shadow': app_styling['box-shadow']}
+review_text_style = {'width': '86%','font-size':'17px','text-align':'centre','color':'white','margin':'3% 5%'}
+Wordcloud_div_style = {'height':'282.5px','background-color':app_styling['layout'],'box-shadow': app_styling['box-shadow']}
+wordcloud_image_style = {'height':'100%', 'width':'100%'}
 graph_hover_data_style = {'width': '29%','float': 'right'}
 gap_div = html.Div(style={'height':'15px','clear':'both'})
 
 app.layout = html.Div([
                        html.Div([
-                                 html.H1("Zomato Review Analysis",style={'text-align': 'center','color':'White','font-size':'50px'}),
+                                 html.H1("Zomato Review Analysis",style=heading_style),
                                  html.Div([html.Div('Select Restaurant', style=dropdown_label_style),
                                            html.Div(dcc.Dropdown(id='restaurant-dropdown',
-                                                                 options=[{'label': i, 'value': i} for i in bar.index.unique()],
-                                                                 value='Local'),
-                                                    style={'width':'75%','height':'40px','float':'right','color':'black'})]
+                                                                 options=[{'label': i, 'value': i} for i in rest_names],
+                                                                 value='PCO'),style=dropdown_div_style)
+                                           ],
                                           ),
                                  gap_div,
-                                 html.Div(children=[
-                                                    html.Div(children = [
-                                                                         dcc.Graph(id='graph',style = figure_text_style),
-                                                                         gap_div, 
-                                                                         html.Div([
-                                                                                   dcc.Graph(id='radar',style={'width' : '49%','float': 'left'}),
-                                                                                   dcc.Graph(id='pie',style={'width' : '49%','float': 'right'}),
-                                                                                   ],
-                                                                                  ),
-                                                                         ],
-                                                             style=graph_style
-                                                             ),
-                                                    html.Div(children=[
-                                                                       html.Div(children=[
-                                                                                          html.Div([
-                                                                                                    html.Div(children='Rating',style = head_style),
-                                                                                                    html.Div(id='cust_rating',style=text_style)
-                                                                                                    ],
-                                                                                                   style=rating_div_style
-                                                                                                   ),
-                                                                                          html.Div([
-                                                                                                    html.Div(children='Sentiment',style = head_style),
-                                                                                                    html.Div(id='sentiment',style=text_style)
-                                                                                                    ],
-                                                                                                   style=Sentiment_div_style
-                                                                                                   ),
-                                                                                          ],
-                                                                                # style = {'height' : '100px'}
-                                                                                ),
-                                                                       gap_div,
-                                                                       html.Div([
-                                                                                 html.Div(id = 'review',style=review_text_style),
-                                                                                 ],
-                                                                                style = review_div_style
-                                                                                ),
-                                                                       gap_div,
-                                                                       html.Div("asdfasdfasdf",style = review_div_style),
-                                                                       ],
-                                                             style = graph_hover_data_style
-                                                             ),
-                                                    ],
+                                 html.Div([
+                                            html.Div( [
+                                                        dcc.Graph(id='graph',style = figure_text_style),
+                                                        gap_div, 
+                                                        html.Div([
+                                                                dcc.Graph(id='radar',style=radar_style),
+                                                                dcc.Graph(id='pie',style=Pie_style),
+                                                                ],
+                                                                ),
+                                                        ],
+                                                        style=graph_style
+                                                        ),
+                                            html.Div([
+                                                        html.Div([
+                                                                html.Div([
+                                                                        html.Div('Rating',style = head_style),
+                                                                        html.Div(id='cust_rating',style=text_style)
+                                                                        ],
+                                                                        style=rating_div_style
+                                                                        ),
+                                                                html.Div([
+                                                                        html.Div('Sentiment',style = head_style),
+                                                                        html.Div(id='sentiment',style=text_style)
+                                                                        ],
+                                                                        style=Sentiment_div_style
+                                                                        ),
+                                                                  ],
+                                                                 ),
+                                                        gap_div,
+                                                        html.Div([
+                                                                    html.Div(id = 'review',style=review_text_style),
+                                                                    ],
+                                                                style = review_div_style
+                                                                ),
+                                                        gap_div,
+                                                        html.Div(html.Img(id = 'wordcloud',style=wordcloud_image_style),
+                                                                style = Wordcloud_div_style),
+                                                        ],
+                                                        style = graph_hover_data_style
+                                                     ),
+                                           ],
                                           ),
                                  gap_div,
                                  html.Div(id='table'),
@@ -108,16 +102,10 @@ app.layout = html.Div([
                                 style={'margin':'4% 3%'}
                                 ),
                        ],
-                      style = {'background-color':app_colors['background']}
+                      style = {'background-color':app_styling['background']}
                       )
 
 
-@app.callback(
-    Output('table', 'children'),
-    Input("get", "height")
-)
-def debug(value):
-    return value
 
 # Define callback to update graph
 @app.callback(
@@ -132,44 +120,77 @@ def update_figure(drop):
 
     rest_data = rest_dict[drop]
 
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(x=rest_data.index,
+    graph = go.Figure()
+    graph.add_trace(go.Scatter(x=rest_data.index,
                              y=rest_data.smooth_sentiment,
                              mode='lines+markers',
-                             name='confirmed',line=dict(color='#C2BF20', width=2)))
-    fig.update_layout(margin=dict(l=60,r=10,b=20,t=50,pad=0),
-                      paper_bgcolor=app_colors['layout'],
+                             text = rest_data.sentiment,
+                             hovertemplate = 
+                             "<b>%{text}</b>",
+                             name='Sentiment',line=dict(color='green', width=2)))
+    graph.add_trace(go.Scatter(x=rest_data.index,
+                             y=rest_data.smooth_cust_rating,
+                             text = rest_data.cust_rating,
+                             hovertemplate = 
+                             "<b>%{text}</b>",
+                             mode='lines+markers',
+                             name='Customer Rating',line=dict(color='red', width=2)))
+    graph.update_layout(margin=dict(l=60,r=10,b=20,t=50,pad=0),
+                      paper_bgcolor=app_styling['layout'], 
                       height= 350,
                       legend=dict(x=.01,y=.98),
                       title_text = 'Reviews',
                       font_size=fig_font_size,
                       xaxis_title="Number of reviews",
-                      yaxis_title="Sentiment with rolling mean",
+                      yaxis_title="Sentiment and rating with rolling mean",
                     #   gridcolor = 'Red',
                     #   clickmode='event+select',
                       xaxis = {'gridcolor':'grey'},
                       yaxis = {'gridcolor':'grey'},
-                      plot_bgcolor=app_colors['layout'],
+                      plot_bgcolor=app_styling['layout'],
                       font = {'color':'white'},
-                    #   hovermode='x'
+                      hovermode='x'
                       )
     
+    
+    radar_data = rest_data.groupby('emotion').count()
+    radar_emotion_count = np.log(radar_data.name).to_list()
+    radar_emotion_count.append(radar_emotion_count[0])
+    radar_emotion_types = radar_data.index.to_list()
+    radar_emotion_types.append(radar_emotion_types[0])
+    # radar_data.name = (radar_data.name - min(radar_data.name))/(max(radar_data.name) - min(radar_data.name))
+
+    rating_data = rest_data.groupby('cust_rating').count()
+    rating_count_list = np.log(rating_data.name).to_list()
+    rating_count_list.append(rating_count_list[0])
+    rating_num_list = [str(i)+".." for i in rating_data.index.to_list()]
+    rating_num_list.append(rating_num_list[0])
+
     radar = go.Figure()
-    radar.add_trace(go.Scatterpolar(r=[1,2,3,4,5,6],
-                                    theta=[heart,'b','c','d','e','f'],
-                                    mode='lines+markers',fill='toself',line=dict(width=2,color='#4E7094')))
-    radar.update_layout(margin=dict(l=50,r=50,b=20,t=50,pad=0),
-                    paper_bgcolor=app_colors['layout'],
+    radar.add_trace(go.Scatterpolar(r=radar_emotion_count,
+                                    theta=radar_emotion_types,
+                                    mode='lines+markers',fill='toself',
+                                    line=dict(width=2,color='green')))
+    # radar.add_trace(go.Scatterpolar(r=rating_count_list,
+    #                             theta=rating_num_list,
+    #                             mode='lines+markers',fill='toself',
+    #                             line=dict(width=2,color='red')))
+    
+    radar.update_layout(margin=dict(l=50,r=50,b=30,t=50,pad=0),
+                    paper_bgcolor=app_styling['layout'],
                     height= 350,
                     # legend=dict(x=.01,y=.98),
                     title_text = 'Emotions',
                     font_size=fig_font_size,
                     xaxis_title="none",
                     yaxis_title="Emotional value",
-                    plot_bgcolor=app_colors['layout'],
+                    plot_bgcolor=app_styling['layout'],
                     font = {'color':'white'},
                     polar = dict(angularaxis = dict(tickfont = dict(size = 25)),
-                                 radialaxis=dict(visible = True,range = [0,10])),
+                                 radialaxis=dict(visible = True,
+                                                 range = [0,max(np.log(radar_data.name).to_list())+1]
+                                                 )
+                                 ),
                     )
 
    
@@ -188,7 +209,7 @@ def update_figure(drop):
                  marker={'colors' :['#2EB848','#B82E2E','#2D35B4']},
                  hole = 0.4))
     pie.update_layout(margin=dict(l=20,r=20,b=20,t=50,pad=0),
-                      paper_bgcolor=app_colors['layout'],
+                      paper_bgcolor=app_styling['layout'],
                       height= 350,
                     #   legend=dict(x=.01,y=.98),
                       title_text = 'Reviews',
@@ -196,12 +217,11 @@ def update_figure(drop):
                       xaxis_title="name",
                       yaxis_title="Number of reviews",
                       clickmode='event+select',
-                      plot_bgcolor=app_colors['layout'],
+                      plot_bgcolor=app_styling['layout'],
                       font = {'color':'white'},
                       hovermode='x')
     
-
-    return [fig,radar,pie]
+    return [graph,radar,pie]
 
 @app.callback(
         Output('cust_rating', 'children'),
@@ -212,25 +232,23 @@ def update_figure(drop):
 )
 def GetHoverData(drop,hoverData):
     rest_data = rest_dict[drop]
-    X = 12
+    X = 100
     if hoverData != None : X = int(hoverData['points'][0]['x'])
     rest_data = rest_data[rest_data.index == X]
-    # table_data = rest_data.transpose().reset_index()
-    # table = html.Table(children=[
-    #                              html.Thead(html.Tr(children=[html.Th(col) for col in table_data.columns.values],
-    #                                                 style={'color':app_colors['text']}
-    #                                                 )
-    #                                         ),
-    #                              html.Tbody([html.Tr(children=[html.Td(table_data) for table_data in d],
-    #                                                  style={'color':app_colors['text']}
-    #                                                  )
-    #                                          for d in table_data.values.tolist()])
-    #                             ])
-
     review = rest_data['review']
     cust_rating = rest_data['cust_rating']
     sentiment = rest_data['sentiment']
     return [cust_rating,sentiment,review]
+
+@app.callback(
+        Output('wordcloud', 'src'),
+        Input("restaurant-dropdown", "value"),
+)
+def CreateWordCloudImage(drop):
+    rest_data = rest_dict[drop]
+    text = " ".join(rest_data.review.dropna())
+    wca = WordCloud(relative_scaling = 1.0,stopwords = set(STOPWORDS)).generate(text)
+    return wca.to_image()
 
 
 if __name__ == '__main__':
