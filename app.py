@@ -246,6 +246,7 @@ def GetHoverData(drop,hoverData):
 )
 def CreateWordCloudImage(drop):
     rest_data = rest_dict[drop]
+    reviews = rest_data[rest_data['sentiment']>.5].review.dropna()
     text = " ".join(rest_data.review.dropna())
     wca = WordCloud(relative_scaling = 1.0,stopwords = set(STOPWORDS)).generate(text)
     return wca.to_image()
