@@ -6,6 +6,8 @@ The data is Scraped form [zomato website](https://www.zomato.com/ncr/top-restaur
 ![ZRA](https://github.com/AbshkPskr/Zomato-Reviews-Analysis/raw/master/Images/Dashboard.png)
 
 ## Packages used
+| **Line chart** - Shows the rolling mean of sentiment and customer rating. The uprise in the line represents the series of consecutive positive reviews and downfall represents the consecutive negative reviews. | <p align="center"><img src="https://github.com/AbshkPskr/Zomato-Reviews-Analysis/raw/master/Images/Line%20Chart.png" width="100%"></p> |
+| ------ | ------ |
 
 ## Illustrations
 All the restaurants are listed in a drop down menu. Seleting a particular restaurant will generate following vizualizations.
