@@ -13,16 +13,17 @@ All the restaurants are listed in a drop down menu. Seleting a particular restau
 <p align="center"><img src="https://github.com/AbshkPskr/Zomato-Reviews-Analysis/raw/master/Images/Line%20Chart.png" width="80%"></p>
 
 - **Review Text data**
-<p align="center"><img src="https://github.com/AbshkPskr/Zomato-Reviews-Analysis/raw/master/Images/Rating%20Sentiment.png" width="30%"></p>
+<p align="center"><img src="https://github.com/AbshkPskr/Zomato-Reviews-Analysis/raw/master/Images/Rating%20Sentiment.png" width="50%"></p>
 
 - **Radar chart**
-- ![Radar](https://github.com/AbshkPskr/Zomato-Reviews-Analysis/raw/master/Images/Emotion.png)
+<p align="center"><img src="https://github.com/AbshkPskr/Zomato-Reviews-Analysis/raw/master/Images/Emotion.png" width="50%"></p>
 
 - **Pie Chart**
-- ![Pie chart](https://github.com/AbshkPskr/Zomato-Reviews-Analysis/raw/master/Images/Pie.png)
+<p align="center"><img src="https://github.com/AbshkPskr/Zomato-Reviews-Analysis/raw/master/Images/Pie.png" width="50%"></p>
 
 - **Word Cloud**
-- ![WordCloud](https://github.com/AbshkPskr/Zomato-Reviews-Analysis/raw/master/Images/WordCloud.png)
+<p align="center"><img src="https://github.com/AbshkPskr/Zomato-Reviews-Analysis/raw/master/Images/WordCloud.png" width="50%"></p>
+
 ### Scope of functionalities
 -
 ### Example of use
