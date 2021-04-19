@@ -1,6 +1,7 @@
 # Zomato Review Analysis
 A Dashboard demonstrating Sentimental analysis of customer reviews of top restaurent located in NCR.
-! [ZRA](https://github.com/AbshkPskr/Zomato-Reviews-Analysis/blob/master/ZRA%20Dash.png?raw=true)
+
+![ZRA](https://github.com/AbshkPskr/Zomato-Reviews-Analysis/blob/master/ZRA%20Dash.png?raw=true)
 ### Packages used
 ### Illustrations
 - 
