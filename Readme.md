@@ -16,7 +16,7 @@ All the restaurants are listed in a drop down menu. Seleting a particular restau
 | **Review Text data** | <p align="center"><img src="https://github.com/AbshkPskr/Zomato-Reviews-Analysis/raw/master/Images/Rating%20Sentiment.png" width="100%"></p> |
 | **Radar chart** | <p align="center"><img src="https://github.com/AbshkPskr/Zomato-Reviews-Analysis/raw/master/Images/Emotion.png" width="100%"></p> |
 | **Pie Chart** | <p align="center"><img src="https://github.com/AbshkPskr/Zomato-Reviews-Analysis/raw/master/Images/Pie.png" width="100%"></p> |
-| **Word Cloud** | <p align="center"><img src="https://github.com/AbshkPskr/Zomato-Reviews-Analysis/raw/master/Images/WordCloud.png" width="50%"></p> |
+| **Word Cloud** | <p align="center"><img src="https://github.com/AbshkPskr/Zomato-Reviews-Analysis/raw/master/Images/WordCloud.png" width="100%"></p> |
 
 ### Scope of functionalities
 -
