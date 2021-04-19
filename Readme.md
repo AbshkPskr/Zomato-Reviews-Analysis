@@ -1,5 +1,7 @@
 # Zomato Review Analysis
-A Dashboard demonstrating Sentimental analysis of customer reviews of top restaurent located in NCR.
+**A Dashboard demonstrating Sentimental and Emotional analysis of top rated restaurants reviews located in NCR.**
+
+**The data is Scraped form the [zomato website](https://www.zomato.com/ncr/top-restaurants) using BeautifulSoup and web scraping techniques. And the application is build using dash(a python library used to build interactive dashboard applications) which uses ploty.js as frontend to generate vizualizations. The project is deployed on pythonanywhere. Watch the live demo [here](http://abshkpskr211.pythonanywhere.com/).**
 
 ![ZRA](https://github.com/AbshkPskr/Zomato-Reviews-Analysis/blob/master/ZRA%20Dash.png?raw=true)
 ### Packages used
