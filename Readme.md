@@ -13,7 +13,7 @@ All the restaurants are listed in a drop down menu. Seleting a particular restau
 <p align="center"><img src="https://github.com/AbshkPskr/Zomato-Reviews-Analysis/raw/master/Images/Line%20Chart.png" width="80%"></p>
 
 - **Review Text data**
-<p align="center"><img src="https://github.com/AbshkPskr/Zomato-Reviews-Analysis/raw/master/Images/Rating%20Sentiment.png" width="80%"></p>
+<p align="center"><img src="https://github.com/AbshkPskr/Zomato-Reviews-Analysis/raw/master/Images/Rating%20Sentiment.png" width="30%"></p>
 
 - **Radar chart**
 - ![Radar](https://github.com/AbshkPskr/Zomato-Reviews-Analysis/raw/master/Images/Emotion.png)
