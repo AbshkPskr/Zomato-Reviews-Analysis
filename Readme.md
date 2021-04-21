@@ -19,8 +19,6 @@ All the restaurants are listed in a drop down menu. Seleting a particular restau
 | **Word Cloud** | <p align="center"><img src="https://github.com/AbshkPskr/Zomato-Reviews-Analysis/raw/master/Images/WordCloud.png" width="100%"></p> |
 
 ### Scope of functionalities
--
 ### Example of use
-- 
 ### Project status
 ### Sources
