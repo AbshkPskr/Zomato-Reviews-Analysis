@@ -6,13 +6,13 @@ The data is Scraped form [zomato website](https://www.zomato.com/ncr/top-restaur
 ![ZRA](https://github.com/AbshkPskr/Zomato-Reviews-Analysis/raw/master/Images/Dashboard.png)
 
 ## Packages used
-Pandas
-Plotly
-Dash
-BeautifulSoup
-TextBlob
-DeepEmoji
-WordCloud
+- Pandas
+- Plotly
+- Dash
+- BeautifulSoup
+- TextBlob
+- DeepEmoji
+- WordCloud
 
 ## Illustrations
 All the restaurants are listed in a drop down menu. Seleting a particular restaurant will generate following vizualizations.
