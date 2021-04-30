@@ -26,7 +26,12 @@ All the restaurants are listed in a drop down menu. Seleting a particular restau
 | **Word Cloud** | <p align="center"><img src="https://github.com/AbshkPskr/Zomato-Reviews-Analysis/raw/master/Images/WordCloud.png" width="100%"></p> |
 
 ### Scope of functionalities
-Similarly more vizualizations can be created to demonstrate trends. Worldcloud can be utilized to show which dish has been critisized and which are liked the most by analizing the reviews separately for positive and negative sentiment and emotions.
+- As we can see the downward trend of reviews and ratings, each review text can be read separately and the problem can be see without searching the whole database.
+- With the help of these graphs negative reviews can be separated and the exact problem can be pull.
+- In this case it can be a dish or issue with the delivery, whichever the reason is it can be identified and reasonable steps could be taken to rectify it.
+- Similarly more vizualizations can be created to demonstrate trends. 
+- With emotional analysis and sentimental analysis on a range of dishes, the most popular and most critisized dish can also be identified.
+- Worldcloud can be utilized to show which dish has been critisized and which are liked the most by analizing the reviews separately for positive and negative sentiment and emotions.
 ### Example of use
 ### Project status
 ### Sources
