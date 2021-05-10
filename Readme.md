@@ -5,7 +5,7 @@ The data is Scraped form [zomato website](https://www.zomato.com/ncr/top-restaur
 
 ![ZRA](https://github.com/AbshkPskr/Zomato-Reviews-Analysis/raw/master/Images/Dashboard.png)
 
-For sentimental and emotional analysis source code please refer to [Ipython notebook](https://github.com/AbshkPskr/Zomato-Reviews-Analysis/blob/master/Text%20and%20emotion%20Analysis/z_graphs.ipynb)
+For sentimental and emotional analysis source code please refer to [Ipython notebook](https://github.com/AbshkPskr/Zomato-Reviews-Analysis/blob/master/Text%20and%20emotion%20Analysis/z_graphs.ipynb).
 
 ## Packages used
 - Pandas
