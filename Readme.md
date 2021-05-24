@@ -3,7 +3,7 @@ A Dashboard demonstrating Sentimental and Emotional analysis of top rated restau
 
 The data is Scraped form [zomato website](https://www.zomato.com/ncr/top-restaurants) using BeautifulSoup and web scraping techniques.The application is build using [dash](https://plotly.com/dash/) (a python library used to build interactive dashboard applications) which uses ploty.js as frontend to generate vizualizations. The project is deployed on pythonanywhere. 
 
-### Watch the live demo [here](http://abshkpskr211.pythonanywhere.com/).
+### <span style="color:yellow">Watch the live demo [here](http://abshkpskr211.pythonanywhere.com/).</span>
 
 ![ZRA](https://github.com/AbshkPskr/Zomato-Reviews-Analysis/raw/master/Images/Dashboard.png)
 
